@@ -81,7 +81,7 @@ namespace MazeRunner.Rendering
             var heartTexture = s_textures[ObjectType.Heart];
 
             PrintText($"Lives: {new string(heartTexture.Data, game.Lives)}", heartTexture.Color);
-            PrintText($"Coins: {game.CoinsLeft}/{game.CoinCount}", ConsoleColor.DarkYellow);
+            PrintText($"Coins: {game.CoinsCollected}/{game.CoinCount}", ConsoleColor.DarkYellow);
             PrintText($"Level: {game.Level}/{Settings.MAX_LEVEL}", ConsoleColor.Blue);
         }
 

@@ -31,10 +31,10 @@ namespace MazeRunner.Core
         public int Lives { get; private set; }
         public int Level { get; private set; }
 
+        public int CoinsCollected { get; private set; }
         public int CoinCount { get; private set; }
-        public int CoinsLeft { get; private set; }
 
-        private bool AllCoinsAreCollected => CoinsLeft <= 0;
+        private bool AllCoinsAreCollected => CoinsCollected >= CoinCount;
         private bool LevelNotCompleted => !AllCoinsAreCollected && !Player.IsDead;
 
         private readonly List<Enemy> _enemies;
@@ -48,7 +48,7 @@ namespace MazeRunner.Core
             _enemies = new(capacity: Settings.MAX_LEVEL);
         }
 
-        public void CollectCoin() => --CoinsLeft;
+        public void CollectCoin() => ++CoinsCollected;
 
         private void StartLevel(int level)
         {
@@ -76,7 +76,7 @@ namespace MazeRunner.Core
             foreach (var position in Map.SpawnEnemies(enemyCount))
                 _enemies.Add(new(position));
 
-            CoinsLeft = CoinCount;
+            CoinsCollected = 0;
             Level = level;
 
             Run();
