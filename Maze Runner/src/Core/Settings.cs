@@ -5,7 +5,7 @@
         public const string TITLE = "Maze Runner";
 
         public const int WINDOW_WIDTH = COLUMN_COUNT;
-        public const int WINDOW_HEIGHT = ROW_COUNT + 5;
+        public const int WINDOW_HEIGHT = ROW_COUNT + 6;
 
         public const int ROW_COUNT = 20;
         public const int COLUMN_COUNT = 50;
@@ -18,5 +18,8 @@
 
         public const int MIN_TURNS_NEEDED_FOR_ENEMY_TO_MOVE = 0;
         public const int MAX_TURNS_NEEDED_FOR_ENEMY_TO_MOVE = 2;
+
+        public const int TURNS_NEEDED_FOR_SUPERPOWER_CHARGE = 10;
+        public const int MAX_SUPERPOWER_CHARGES = 10;
     }
 }

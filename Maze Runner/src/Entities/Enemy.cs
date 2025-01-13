@@ -10,13 +10,18 @@ namespace MazeRunner.Entities
         private static int GetTurnsUntilNextMove()
             => s_random.Next(Settings.MIN_TURNS_NEEDED_FOR_ENEMY_TO_MOVE, Settings.MAX_TURNS_NEEDED_FOR_ENEMY_TO_MOVE + 1);
 
-        private int _turnsUntilNextMove;
-        private bool _shouldRespawnCoin;
+        private readonly TickTimer _moveTimer = new(GetTurnsUntilNextMove());
+
+        private bool _isStandingOnCoin;
         
         public void TryToMoveTowardsPlayer()
         {
-            if (_turnsUntilNextMove-- > 0) return;
-            _turnsUntilNextMove = GetTurnsUntilNextMove();
+            if (_moveTimer.IsNotFinished)
+            {
+                _moveTimer.Update();
+                return;
+            }
+            _moveTimer.Reset(GetTurnsUntilNextMove());
 
             var player = Game.Instance.Player;
 
@@ -39,9 +44,9 @@ namespace MazeRunner.Entities
             var oldPosition = Position;
             Move(newPosition);
 
-            if (_shouldRespawnCoin)
+            if (_isStandingOnCoin)
                 Game.Instance.Map[oldPosition] = ObjectType.Coin;
-            _shouldRespawnCoin = isCollidingWithCoin;
+            _isStandingOnCoin = isCollidingWithCoin;
         }
     }
 }

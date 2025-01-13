@@ -6,6 +6,7 @@
         Player,
         Enemy,
         Heart,
+        Superpower,
         Wall,
         Coin
     }

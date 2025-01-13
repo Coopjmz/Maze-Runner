@@ -1,10 +1,14 @@
 ﻿using MazeRunner.Core;
+using MazeRunner.Gameplay;
 
 namespace MazeRunner.Entities
 {
     sealed class Player(Position position) : Entity(ObjectType.Player, position)
     {
         public bool IsDead { get; private set; }
+        public int CoinsCollected { get; private set; }
+
+        public Superpower Superpower { get; init; } = new();
 
         public override void Move(Direction direction)
         {
@@ -13,7 +17,7 @@ namespace MazeRunner.Entities
             switch (GetCollidingObject(direction))
             {
                 case ObjectType.Coin:
-                    Game.Instance.CollectCoin();
+                    ++CoinsCollected;
                     break;
                 case ObjectType.Enemy:
                     Die();

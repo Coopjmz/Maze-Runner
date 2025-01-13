@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 
 using MazeRunner.Entities;
+using MazeRunner.Gameplay;
 using MazeRunner.Input;
 using MazeRunner.Rendering;
 
@@ -31,24 +32,20 @@ namespace MazeRunner.Core
         public int Lives { get; private set; }
         public int Level { get; private set; }
 
-        public int CoinsCollected { get; private set; }
         public int CoinCount { get; private set; }
 
-        private bool AllCoinsAreCollected => CoinsCollected >= CoinCount;
-        private bool LevelNotCompleted => !AllCoinsAreCollected && !Player.IsDead;
+        private bool AllCoinsAreCollected => Player.CoinsCollected >= CoinCount;
+        private bool LevelIsCompleted => AllCoinsAreCollected || Player.IsDead;
 
         private readonly List<Enemy> _enemies;
 
-#pragma warning disable CS8618
         public Game()
-#pragma warning restore CS8618
         {
             Map = new(Settings.ROW_COUNT, Settings.COLUMN_COUNT);
+            Player = new(new()); // Create empty player to suppress warning
             Lives = Settings.MAX_LIVES;
             _enemies = new(capacity: Settings.MAX_LEVEL);
         }
-
-        public void CollectCoin() => ++CoinsCollected;
 
         private void StartLevel(int level)
         {
@@ -76,7 +73,6 @@ namespace MazeRunner.Core
             foreach (var position in Map.SpawnEnemies(enemyCount))
                 _enemies.Add(new(position));
 
-            CoinsCollected = 0;
             Level = level;
 
             Run();
@@ -86,21 +82,39 @@ namespace MazeRunner.Core
         {
             Renderer.Render();
 
-            while (LevelNotCompleted)
+            while (!LevelIsCompleted)
             {
-                Direction direction;
-                while ((direction = InputHandler.GetPlayerDirection()) == Direction.ZERO)
+                PlayerAction action = InputHandler.GetPlayerAction();
+
+                if (action == PlayerAction.Invalid)
                 {
                     Renderer.Render();
                     Renderer.PrintError("Invalid input!");
+                    continue;
                 }
 
-                Player.Move(direction);
-
-                if (LevelNotCompleted)
+                if (action == PlayerAction.ToggleSuperpower)
                 {
-                    foreach (var enemy in _enemies)
-                        enemy.TryToMoveTowardsPlayer();
+                    if (!Player.Superpower.IsActive && Player.Superpower.Charges <= 0)
+                    {
+                        Renderer.Render();
+                        Renderer.PrintError("Not enough charges to activate superpower!");
+                        continue;
+                    }
+
+                    Player.Superpower.Toggle();
+                }
+                else
+                {
+                    Player.Move(Controls.GetPlayerDirection(action));
+
+                    if (!LevelIsCompleted && !Player.Superpower.IsActive)
+                    {
+                        foreach (var enemy in _enemies)
+                            enemy.TryToMoveTowardsPlayer();
+                    }
+
+                    Player.Superpower.Update();
                 }
 
                 Renderer.Render();

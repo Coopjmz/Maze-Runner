@@ -13,13 +13,16 @@ namespace MazeRunner.Rendering
 
     static class Renderer
     {
+        private const ConsoleColor SUPERPOWER_ACTIVE_COLOR = ConsoleColor.Green;
+        private const ConsoleColor LEVEL_COLOR = ConsoleColor.Blue;
         private const ConsoleColor ERROR_COLOR = ConsoleColor.DarkRed;
 
         private static readonly Dictionary<ObjectType, Texture> s_textures = new()
         {
-            {ObjectType.Player, new((char)2, ConsoleColor.Green)},
+            {ObjectType.Player, new((char)2, ConsoleColor.DarkGreen)},
             {ObjectType.Enemy, new((char)1, ConsoleColor.DarkRed)},
             {ObjectType.Heart, new((char)3, ConsoleColor.Red)},
+            {ObjectType.Superpower, new((char)5, ConsoleColor.DarkGreen)},
             {ObjectType.Wall, new('#', ConsoleColor.DarkBlue)},
             {ObjectType.Coin, new('0', ConsoleColor.DarkYellow)},
             {ObjectType.None, new(' ', ConsoleColor.Black)}
@@ -78,17 +81,25 @@ namespace MazeRunner.Rendering
         private static void RenderUI()
         {
             var game = Game.Instance;
+            var player = game.Player;
+            var superpower = player.Superpower;
+
             var heartTexture = s_textures[ObjectType.Heart];
+            var superpowerTexture = s_textures[ObjectType.Superpower];
+            var superpowerColor = superpower.IsActive ? SUPERPOWER_ACTIVE_COLOR : superpowerTexture.Color;
+            var coinColor = s_textures[ObjectType.Coin].Color;
 
             PrintText($"Lives: {new string(heartTexture.Data, game.Lives)}", heartTexture.Color);
-            PrintText($"Coins: {game.CoinsCollected}/{game.CoinCount}", ConsoleColor.DarkYellow);
-            PrintText($"Level: {game.Level}/{Settings.MAX_LEVEL}", ConsoleColor.Blue);
+            PrintText($"Superpower: {new string(superpowerTexture.Data, superpower.Charges)}", superpowerColor);
+            PrintText($"Coins: {player.CoinsCollected}/{game.CoinCount}", coinColor);
+            PrintText($"Level: {game.Level}/{Settings.MAX_LEVEL}", LEVEL_COLOR);
         }
 
         private static void DrawObject(ObjectType obj)
         {
             var texture = s_textures[obj];
-            Console.ForegroundColor = texture.Color;
+            Console.ForegroundColor = obj == ObjectType.Player && Game.Instance.Player.Superpower.IsActive ?
+                SUPERPOWER_ACTIVE_COLOR : texture.Color;
             Console.Write(texture.Data);
         }
     }

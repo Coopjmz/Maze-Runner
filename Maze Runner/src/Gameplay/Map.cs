@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 
-namespace MazeRunner.Core
+using MazeRunner.Core;
+
+namespace MazeRunner.Gameplay
 {
     sealed class Map(int rowCount, int columnCount)
     {
